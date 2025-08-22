@@ -18,23 +18,24 @@ app.get('/', (req, res) => {
 
 app.post("/generated", (req, res) => {
   const url = req.body.URL;
-  
-  if (!url) {
-    return res.status(400).send("URL is required");
-  }
-  
-  // Generate QR as base64 instead of file
-  const qr_png = qr.imageSync(url, { type: 'png' });
+  const qr_png = qr.image(url);
   const qrBase64 = qr_png.toString('base64');
   
   res.send(`
     <html>
       <body>
         <h2>QR Code Generated!</h2>
-        <p>URL: ${url}</p>
-        <img src="data:image/png;base64,${qrBase64}" alt="QR Code" style="max-width: 300px;">
+        <img src="data:image/png;base64,${qrBase64}" id="qrImage">
         <br><br>
-        <a href="/">Generate Another QR Code</a>
+        <button onclick="downloadQR()">Download QR Code</button>
+        <script>
+          function downloadQR() {
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = document.getElementById('qrImage').src;
+            link.click();
+          }
+        </script>
       </body>
     </html>
   `);
